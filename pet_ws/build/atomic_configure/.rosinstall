@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/bedestrian/ROS-Turtlesim/pet_ws/devel/setup.sh

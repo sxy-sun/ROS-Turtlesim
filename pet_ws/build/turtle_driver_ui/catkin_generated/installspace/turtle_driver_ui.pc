@@ -1,0 +1,8 @@
+prefix=/home/bedestrian/ROS-Turtlesim/pet_ws/install
+
+Name: turtle_driver_ui
+Description: Description of turtle_driver_ui
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

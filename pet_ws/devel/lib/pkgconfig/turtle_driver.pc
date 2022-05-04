@@ -1,0 +1,8 @@
+prefix=/home/bedestrian/ROS-Turtlesim/pet_ws/devel
+
+Name: turtle_driver
+Description: Description of turtle_driver
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
