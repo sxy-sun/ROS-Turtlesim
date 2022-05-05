@@ -1,0 +1,5 @@
+# Ignore micro log
+log.txt
+
+# Ignore local Cmakelist.txt
+CMakeLists.txt
