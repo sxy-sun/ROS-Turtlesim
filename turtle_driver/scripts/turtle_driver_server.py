@@ -5,11 +5,12 @@ This is a node called turtle_driver - server
 
 """
 
+import turtle
 import rospy
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
 from math import pow, atan2, sqrt
-
+from turtle_driver.srv import DriveTurtleSrv
 
 class TurtleBot:
 
@@ -115,9 +116,25 @@ class TurtleBot:
 
         rospy.spin()
 
+
+def drive_turtle_station(msg):
+    """
+    msg:
+        string task
+        float64 radius
+        float64 length
+        float64[] waypoints
+        ---
+        bool indicator
+    """
+    pass
+
 if __name__ == '__main__':
     try:
-        x = TurtleBot()
-        x.drive_circle()
+        print("runing")
+        rospy.init_node('turtle_drive_server')
+        s = rospy.Service('turtle_drive', DriveTurtleSrv, drive_turtle_station)
+        print("Server is running")
+        rospy.spin()
     except rospy.ROSInterruptException:
         pass

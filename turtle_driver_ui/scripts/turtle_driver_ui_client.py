@@ -6,36 +6,14 @@ This is a node called turtle_driver_ui - client
 from secrets import choice
 import rospy
 import sys
-from turtle_driver_ui.srv import DriveCircle, DriveSquare, Waypoints
+from turtle_driver_ui.srv import DriveTurtleSrv
 
 
-def drive_circle(radius):
+def drive(task, radius, side_length, waypoints):
     rospy.wait_for_service('turtle_drive')
     try:
-        turtle_drive = rospy.ServiceProxy('turtle_drive', DriveCircle)
-        indicator = turtle_drive(radius)
-        if indicator:
-            print("Manuever was successful")
-    except rospy.ServiceException as e:
-        print("Manuever has failed")
-
-
-def drive_square(side_length):
-    rospy.wait_for_service('turtle_drive')
-    try:
-        turtle_drive = rospy.ServiceProxy('turtle_drive', DriveSquare)
-        indicator = turtle_drive(side_length)
-        if indicator:
-            print("Manuever was successful")
-    except rospy.ServiceException as e:
-        print("Manuever has failed")
-
-
-def waypoint_following(waypoints):
-    rospy.wait_for_service('turtle_drive')
-    try:
-        turtle_drive = rospy.ServiceProxy('turtle_drive', Waypoints)
-        indicator = turtle_drive(waypoints)
+        turtle_drive = rospy.ServiceProxy('turtle_drive', DriveTurtleSrv)
+        indicator = turtle_drive(task, radius, side_length, waypoints)
         if indicator:
             print("Manuever was successful")
     except rospy.ServiceException as e:
@@ -51,18 +29,23 @@ if __name__ == "__main__":
 
         moveing_choice = input().split()    # this will give a input list
         print(moveing_choice)
+
+        task = moveing_choice[0]
+        radius = None
+        length = None
+        waypoints = None
+
         if moveing_choice[0] == 'circle':
             radius = float(moveing_choice[1])
-            print("Requesting...")
-            print("%s", drive_circle(radius))
         elif moveing_choice[0] == 'square':
-            side_length = float(moveing_choice[1])
-            print("Requesting...")
-            print("%s", drive_square(side_length))
+            length = float(moveing_choice[1])
         elif moveing_choice[0] == 'custom':
-            waypoints = moveing_choice[1:]    
-            print("Requesting...")
-            print("%s", waypoint_following(waypoints))  
+            # Note: waypoints there are a list of string
+            # ['(1,2)', '(2,3)']
+            waypoints = moveing_choice[1:]  
         else:
             print("Bad Input")
             sys.exit(1)
+
+        print("Requesting...")
+        drive(task, radius, length, waypoints)

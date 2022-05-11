@@ -58,9 +58,7 @@ find_package(catkin REQUIRED COMPONENTS
 # Generate services in the 'srv' folder
 add_service_files(
   FILES
-  DriveCircle.srv
-  DriveSquare.srv
-  Waypoints.srv
+  DriveTurtleSrv.srv
 )
 
 ## Generate actions in the 'action' folder
