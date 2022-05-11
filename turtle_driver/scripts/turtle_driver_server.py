@@ -7,9 +7,10 @@ This is a node called turtle_driver - server
 
 import turtle
 import rospy
+import time
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
-from math import pow, atan2, sqrt
+from math import pow, atan2, sqrt, pi
 from turtle_driver.srv import DriveTurtleSrv
 
 class TurtleBot:
@@ -26,9 +27,11 @@ class TurtleBot:
         # A subscriber to the topic '/turtle1/pose'. self.update_pose is called
         # when a message of type Pose is received.
         self.pose_subscriber = rospy.Subscriber('/turtle1/pose',
-                                                Pose, self.update_pose)
+                                              Pose, self.update_pose)
 
         self.pose = Pose()
+        self.original_pose = Pose()
+        self.original_pose = self.pose
         self.rate = rospy.Rate(10)
         self.radius = radius
         self.side_length = side_length
@@ -99,7 +102,8 @@ class TurtleBot:
 
     def drive_circle(self):
         vel_msg = Twist()
-        while not rospy.is_shutdown():
+        start = time.time()
+        while time.time()-start <= 2.1*pi:
             # Linear velocity in the x-axis.
             vel_msg.linear.x = self.radius
             vel_msg.linear.y = 0
@@ -109,12 +113,14 @@ class TurtleBot:
             vel_msg.angular.x = 0
             vel_msg.angular.y = 0
             vel_msg.angular.z = 1
-        
 
             self.velocity_publisher.publish(vel_msg)
             self.rate.sleep()
 
-        rospy.spin()
+        vel_msg.linear.x = 0
+        vel_msg.angular.z = 0
+        self.velocity_publisher.publish(vel_msg)
+        return 
 
 
 def drive_turtle_station(msg):
@@ -132,11 +138,11 @@ def drive_turtle_station(msg):
         print("turtle in circle")
         turtle.drive_circle()
         return True
-    elif msg.taks == 'square':
+    elif msg.task == 'square':
         print("turtle in square")
 
         return True
-    elif msg.taks == 'custom':
+    elif msg.task == 'custom':
         print("turtle following points")
 
         return True
