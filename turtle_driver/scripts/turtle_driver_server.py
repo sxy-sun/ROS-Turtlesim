@@ -14,10 +14,10 @@ from turtle_driver.srv import DriveTurtleSrv
 
 class TurtleBot:
 
-    def __init__(self):
+    def __init__(self, radius, side_length, waypoints):
         # Creates a node with name 'turtlebot_controller' and make sure it is a
         # unique node (using anonymous=True).
-        rospy.init_node('turtlebot_controller', anonymous=True)
+        # rospy.init_node('turtlebot_controller', anonymous=True)
 
         # Publisher which will publish to the topic '/turtle1/cmd_vel'.
         self.velocity_publisher = rospy.Publisher('/turtle1/cmd_vel',
@@ -30,6 +30,9 @@ class TurtleBot:
 
         self.pose = Pose()
         self.rate = rospy.Rate(10)
+        self.radius = radius
+        self.side_length = side_length
+        self.waypoints = waypoints
 
     def update_pose(self, data):
         """Callback function which is called when a new message of type Pose is
@@ -95,13 +98,10 @@ class TurtleBot:
         rospy.spin()
 
     def drive_circle(self):
-        goal_pose = Pose()
-        radius = float(input("Set the circle's radius: "))
-
         vel_msg = Twist()
         while not rospy.is_shutdown():
             # Linear velocity in the x-axis.
-            vel_msg.linear.x = radius
+            vel_msg.linear.x = self.radius
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
 
@@ -127,7 +127,20 @@ def drive_turtle_station(msg):
         ---
         bool indicator
     """
-    pass
+    turtle = TurtleBot(msg.radius, msg.length, msg.waypoints)
+    if msg.task == 'circle':
+        print("turtle in circle")
+        turtle.drive_circle()
+        return True
+    elif msg.taks == 'square':
+        print("turtle in square")
+
+        return True
+    elif msg.taks == 'custom':
+        print("turtle following points")
+
+        return True
+    return False
 
 if __name__ == '__main__':
     try:

@@ -18,6 +18,7 @@ def drive(task, radius, side_length, waypoints):
             print("Manuever was successful")
     except rospy.ServiceException as e:
         print("Manuever has failed")
+        print(e)
 
 
 if __name__ == "__main__":
