@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   geometry_msgs
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -72,6 +73,8 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   std_msgs  # Or other packages containing msgs
+  nav_msgs
+  geometry_msgs
 )
 
 ################################################
@@ -106,7 +109,7 @@ generate_messages(
 catkin_package(
 # INCLUDE_DIRS include
  #LIBRARIES turtle_driver
- CATKIN_DEPENDS roscpp rospy message_runtime std_msgs geometry_msgs
+ CATKIN_DEPENDS roscpp rospy message_runtime std_msgs geometry_msgs nav_msgs
 #  DEPENDS system_lib
 )
 

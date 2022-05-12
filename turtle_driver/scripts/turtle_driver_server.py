@@ -30,19 +30,31 @@ class TurtleBot:
                                               Pose, self.update_pose)
 
         self.pose = Pose()
-        self.original_pose = Pose()
-        self.original_pose = self.pose
         self.rate = rospy.Rate(10)
         self.radius = radius
         self.side_length = side_length
         self.waypoints = waypoints
+        self.original_pose = None
+        self.square_corners = [self.original_pose]*4
+
 
     def update_pose(self, data):
         """Callback function which is called when a new message of type Pose is
         received by the subscriber."""
         self.pose = data
+        if not self.original_pose:
+            self.original_pose = data
+            self.original_pose.x = round(self.original_pose.x, 4)
+            self.original_pose.y = round(self.original_pose.y, 4)
+            # self.square_corners = [self.original_pose]*4
+            self.drive_square[0].x += self.side_length
+            self.drive_square[1].x += self.side_length
+            self.drive_square[1].y += self.side_length
+            self.drive_square[2].y += self.side_length
+            print(self.square_corners)
         self.pose.x = round(self.pose.x, 4)
         self.pose.y = round(self.pose.y, 4)
+
 
     def euclidean_distance(self, goal_pose):
         """Euclidean distance between current pose and the goal."""
@@ -58,16 +70,11 @@ class TurtleBot:
     def angular_vel(self, goal_pose, constant=6):
         return constant * (self.steering_angle(goal_pose) - self.pose.theta)
 
-    def move2goal(self):
+    def move2goal(self, goal_pose):
         """Moves the turtle to the goal."""
-        goal_pose = Pose()
-
-        # Get the input from the user.
-        goal_pose.x = float(input("Set your x goal: "))
-        goal_pose.y = float(input("Set your y goal: "))
 
         # Please, insert a number slightly greater than 0 (e.g. 0.01).
-        distance_tolerance = float(input("Set your tolerance: "))
+        distance_tolerance = 0.01
 
         vel_msg = Twist()
 
@@ -96,9 +103,10 @@ class TurtleBot:
         vel_msg.linear.x = 0
         vel_msg.angular.z = 0
         self.velocity_publisher.publish(vel_msg)
+        return
 
         # If we press control + C, the node will stop.
-        rospy.spin()
+        # rospy.spin()
 
     def drive_circle(self):
         vel_msg = Twist()
@@ -123,6 +131,16 @@ class TurtleBot:
         return 
 
 
+    def drive_square(self):
+        for i in range(4):
+            self.move2goal(self.square_corners[i])
+
+
+    def drive_waypoints(self):
+        # TODO
+        pass
+
+
 def drive_turtle_station(msg):
     """
     msg:
@@ -135,22 +153,22 @@ def drive_turtle_station(msg):
     """
     turtle = TurtleBot(msg.radius, msg.length, msg.waypoints)
     if msg.task == 'circle':
-        print("turtle in circle")
+        print("turtle running in circle")
         turtle.drive_circle()
         return True
     elif msg.task == 'square':
-        print("turtle in square")
-
+        print("turtle running in square")
+        turtle.drive_square()
         return True
     elif msg.task == 'custom':
         print("turtle following points")
-
+        turtle.drive_waypoints()
         return True
     return False
 
+
 if __name__ == '__main__':
     try:
-        print("runing")
         rospy.init_node('turtle_drive_server')
         s = rospy.Service('turtle_drive', DriveTurtleSrv, drive_turtle_station)
         print("Server is running")
