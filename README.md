@@ -16,21 +16,24 @@ Note: remember to source `.bashrc` under `/pet_ws` every time start a new termin
 
 First terminal
 ```
-roscore
+$ roscore
 ```
 
 Second terminal
 ```
-rosrun turtlesim turtlesim_node
+$ rosrun turtlesim turtlesim_node
 ```
 
 Third terminal
 ```
-rosrun turtle_drive turtle_drive.py
+$ rosrun turtle_driver turtle_driver_server.py
 ```
 
 Fourth terminal
 ```
 # to run in a circle with radius = 1
 $ rosservice call /turtle_drive "{task: circle, radius: 1}"
+
+# to run in a square with side length = 1
+$ rosservice call /turtle_drive "{task: square, length: 1}"
 ```
