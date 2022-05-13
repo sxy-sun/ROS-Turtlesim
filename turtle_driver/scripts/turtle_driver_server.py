@@ -37,9 +37,7 @@ class TurtleBot:
         self.original_pose = Pose()
         self.original_pose.x = 5.5444
         self.original_pose.y = 5.5444
-        self.square_corners = [self.original_pose]*4
-        print("hererererer")
-        print(self.square_corners)
+        self.square_corners = []
 
 
     def update_pose(self, data):
@@ -55,37 +53,52 @@ class TurtleBot:
         return math.sqrt(math.pow((goal_pose.x - self.pose.x), 2) +
                     math.pow((goal_pose.y - self.pose.y), 2))
 
-    def linear_vel(self, goal_pose, constant=1.5):
-        return constant * self.euclidean_distance(goal_pose)
 
     def steering_angle(self, goal_pose):
         return math.atan2(goal_pose.y - self.pose.y, goal_pose.x - self.pose.x)
 
+
+    def linear_vel(self, goal_pose, constant=1.5):
+        return constant * self.euclidean_distance(goal_pose)
+
+
     def angular_vel(self, goal_pose, constant=6):
-        return constant * (self.steering_angle(goal_pose) - self.pose.theta)
+        goal_theta = self.steering_angle(goal_pose)
+        return constant * clamp(goal_theta - self.pose.theta)
+
 
     def move2goal(self, goal_pose):
         """Moves the turtle to the goal."""
         # Please, insert a number slightly greater than 0 (e.g. 0.01).
-        distance_tolerance = 0.01
+        print("Heading to x: %f, y: %f" % (goal_pose.x, goal_pose.y))
+        distance_tolerance = 0.001
 
         vel_msg = Twist()
+        while clamp(self.steering_angle(goal_pose) - self.pose.theta) >= distance_tolerance:
+            vel_msg.linear.x = 0
+            vel_msg.linear.y = 0
+            vel_msg.linear.z = 0
 
-        while self.euclidean_distance(goal_pose) >= distance_tolerance:
+            vel_msg.angular.x = 0
+            vel_msg.angular.y = 0
+            vel_msg.angular.z = self.angular_vel(goal_pose)
+            
 
-            # Porportional controller.
-            # https://en.wikipedia.org/wiki/Proportional_control
+            # Publishing our vel_msg
+            self.velocity_publisher.publish(vel_msg)
+
+            # Publish at the desired rate.
+            self.rate.sleep()
+        vel_msg.angular.z = 0
+        self.velocity_publisher.publish(vel_msg)
+
+        while self.euclidean_distance(goal_pose) > distance_tolerance:
 
             # Linear velocity in the x-axis.
             vel_msg.linear.x = self.linear_vel(goal_pose)
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
-
-            # Angular velocity in the z-axis.
-            vel_msg.angular.x = 0
-            vel_msg.angular.y = 0
-            vel_msg.angular.z = self.angular_vel(goal_pose)
-
+            
             # Publishing our vel_msg
             self.velocity_publisher.publish(vel_msg)
 
@@ -94,7 +107,7 @@ class TurtleBot:
 
         # Stopping our robot after the movement is over.
         vel_msg.linear.x = 0
-        vel_msg.angular.z = 0
+        vel_msg.linear.y = 0
         self.velocity_publisher.publish(vel_msg)
         return
 
@@ -125,18 +138,38 @@ class TurtleBot:
 
 
     def drive_square(self):
-        self.square_corners[0].x += self.side_length
-        self.square_corners[1].x += self.side_length
-        self.square_corners[1].y += self.side_length
-        self.square_corners[2].y += self.side_length
-        print(self.square_corners[0])
-        for i in range(4):
-            self.move2goal(self.square_corners[i])
+        goal1 = Pose()
+        goal2 = Pose()
+        goal3 = Pose()
+        goal1.x = self.original_pose.x + self.side_length
+        goal1.y = self.original_pose.y
+        goal2.x = self.original_pose.x + self.side_length
+        goal2.y = self.original_pose.y + self.side_length
+        goal3.x = self.original_pose.x 
+        goal3.y = self.original_pose.y + self.side_length
+        
+        self.move2goal(goal1)
+        self.move2goal(goal2)
+        self.move2goal(goal3)
+        self.move2goal(self.original_pose)
 
 
     def drive_waypoints(self):
         # TODO
         pass
+
+
+def clamp(angle):
+    """
+    Clamp angles between [-pi, p1]
+    """
+    while angle > math.pi:
+        angle -= 2*math.pi
+    
+    while angle <= -math.pi:
+        angle += 2*math.pi
+    
+    return angle
 
 
 def drive_turtle_station(msg):
@@ -163,6 +196,7 @@ def drive_turtle_station(msg):
         turtle.drive_waypoints()
         return True
     return False
+
 
 
 if __name__ == '__main__':
