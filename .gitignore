@@ -3,3 +3,6 @@ log.txt
 
 # Ignore local Cmakelist.txt
 CMakeLists.txt
+.vscode/browse.vc.db
+.vscode/c_cpp_properties.json
+.vscode/settings.json

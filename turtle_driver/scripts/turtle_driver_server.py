@@ -6,10 +6,14 @@ This is a node called turtle_driver - server
 """
 
 import turtle
+
+from yaml import YAMLError
 import rospy
 import time
+from PID import PID
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
+from nav_msgs.msg import Path
 import math
 from turtle_driver.srv import DriveTurtleSrv
 
@@ -29,7 +33,10 @@ class TurtleBot:
         # when a message of type Pose is received.
         self.pose_subscriber = rospy.Subscriber('/turtle1/pose',
                                               Pose, self.update_pose)
+
         self.pose = Pose()
+        self.pose.x = 5.5444
+        self.pose.y = 5.5444
         self.rate = rospy.Rate(10)
         self.radius = radius
         self.side_length = side_length
@@ -38,6 +45,19 @@ class TurtleBot:
         self.original_pose.x = 5.5444
         self.original_pose.y = 5.5444
         self.square_corners = []
+        self.linear_PID = PID()
+
+
+    def update_waypoints(self):
+        """
+        return a list of tuple (x, y)
+        """
+        waypoints = []
+        for i in range(len(self.waypoints.poses)):
+            x = self.waypoints.poses[i].pose.position.x
+            y = self.waypoints.poses[i].pose.position.y
+            waypoints.append((x, y))
+        return waypoints
 
 
     def update_pose(self, data):
@@ -50,16 +70,18 @@ class TurtleBot:
 
     def euclidean_distance(self, goal_pose):
         """Euclidean distance between current pose and the goal."""
-        return math.sqrt(math.pow((goal_pose.x - self.pose.x), 2) +
+        distance = math.sqrt(math.pow((goal_pose.x - self.pose.x), 2) +
                     math.pow((goal_pose.y - self.pose.y), 2))
-
+        return distance
 
     def steering_angle(self, goal_pose):
-        return math.atan2(goal_pose.y - self.pose.y, goal_pose.x - self.pose.x)
+        steering_angle = math.atan2(goal_pose.y - self.pose.y, goal_pose.x - self.pose.x)
+        return steering_angle
 
-
-    def linear_vel(self, goal_pose, constant=1.5):
-        return constant * self.euclidean_distance(goal_pose)
+    def linear_vel(self, goal_pose):
+        error = self.euclidean_distance(goal_pose)
+        linear_vel = self.linear_PID.update_vel(error)
+        return linear_vel
 
 
     def angular_vel(self, goal_pose, constant=6):
@@ -71,10 +93,10 @@ class TurtleBot:
         """Moves the turtle to the goal."""
         # Please, insert a number slightly greater than 0 (e.g. 0.01).
         print("Heading to x: %f, y: %f" % (goal_pose.x, goal_pose.y))
-        distance_tolerance = 0.001
 
         vel_msg = Twist()
-        while clamp(self.steering_angle(goal_pose) - self.pose.theta) >= distance_tolerance:
+        print("Turning...")
+        while abs(clamp(self.steering_angle(goal_pose) - self.pose.theta)) >= 0.01:
             vel_msg.linear.x = 0
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
@@ -82,19 +104,20 @@ class TurtleBot:
             vel_msg.angular.x = 0
             vel_msg.angular.y = 0
             vel_msg.angular.z = self.angular_vel(goal_pose)
-            
-
             # Publishing our vel_msg
             self.velocity_publisher.publish(vel_msg)
 
             # Publish at the desired rate.
             self.rate.sleep()
+
         vel_msg.angular.z = 0
         self.velocity_publisher.publish(vel_msg)
 
-        while self.euclidean_distance(goal_pose) > distance_tolerance:
+        print("Going Straight...")
+        while self.euclidean_distance(goal_pose) >= 0.15:
 
             # Linear velocity in the x-axis.
+            print("Closer to: ", self.euclidean_distance(goal_pose))
             vel_msg.linear.x = self.linear_vel(goal_pose)
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
@@ -107,7 +130,6 @@ class TurtleBot:
 
         # Stopping our robot after the movement is over.
         vel_msg.linear.x = 0
-        vel_msg.linear.y = 0
         self.velocity_publisher.publish(vel_msg)
         return
 
@@ -152,11 +174,17 @@ class TurtleBot:
         self.move2goal(goal2)
         self.move2goal(goal3)
         self.move2goal(self.original_pose)
+        return
 
 
     def drive_waypoints(self):
-        # TODO
-        pass
+        waypoints_lst = self.update_waypoints()
+        for i in range(len(waypoints_lst)):
+            goal = Pose()
+            goal.x = waypoints_lst[i][0]
+            goal.y = waypoints_lst[i][1]
+            self.move2goal(goal)
+        return
 
 
 def clamp(angle):
