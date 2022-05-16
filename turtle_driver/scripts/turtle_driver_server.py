@@ -96,7 +96,7 @@ class TurtleBot:
 
         vel_msg = Twist()
         print("Turning...")
-        while abs(clamp(self.steering_angle(goal_pose) - self.pose.theta)) >= 0.01:
+        while abs(clamp(self.steering_angle(goal_pose) - self.pose.theta)) >= 0.001:
             vel_msg.linear.x = 0
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
@@ -114,7 +114,7 @@ class TurtleBot:
         self.velocity_publisher.publish(vel_msg)
 
         print("Going Straight...")
-        while self.euclidean_distance(goal_pose) >= 0.15:
+        while self.euclidean_distance(goal_pose) >= 0.01:
 
             # Linear velocity in the x-axis.
             print("Closer to: ", self.euclidean_distance(goal_pose))
@@ -160,20 +160,22 @@ class TurtleBot:
 
 
     def drive_square(self):
-        goal1 = Pose()
-        goal2 = Pose()
-        goal3 = Pose()
-        goal1.x = self.original_pose.x + self.side_length
-        goal1.y = self.original_pose.y
-        goal2.x = self.original_pose.x + self.side_length
-        goal2.y = self.original_pose.y + self.side_length
-        goal3.x = self.original_pose.x 
-        goal3.y = self.original_pose.y + self.side_length
-        
-        self.move2goal(goal1)
-        self.move2goal(goal2)
-        self.move2goal(goal3)
+        goal = Pose()
+
+        goal.x = self.original_pose.x + self.side_length
+        goal.y = self.original_pose.y
+        self.move2goal(goal)
+
+        goal.x = self.pose.x
+        goal.y = self.pose.y + self.side_length
+        self.move2goal(goal)
+
+        goal.x = self.pose.x - self.side_length
+        goal.y = self.pose.y
+        self.move2goal(goal)
+
         self.move2goal(self.original_pose)
+
         return
 
 
