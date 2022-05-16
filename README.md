@@ -30,5 +30,5 @@ rosservice call /turtle_drive "{task: square, length: 1}"
 ```
 To follow waypoints
 ```
-rosservice call /turtle_drive "{task: custom, waypoints: {poses: [{pose: {position: {x: 1, y: 1}}}, {pose: {position: {x: 3, y: 5}}}]}}"
+rosservice call /turtle_drive "{task: custom, waypoints: {poses: [{pose: {position: {x: 1, y: 1}}}, {pose: {position: {x: 3, y: 5}}}, {pose: {position: {x: 7, y: 7}}}]}}"
 ```
