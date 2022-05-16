@@ -1,5 +1,12 @@
 # ROS-Turtlesim
+## Sample video
 
+
+https://user-images.githubusercontent.com/49962634/168674137-924506a0-6be0-4cff-b24d-e1160dcc3ae6.mov
+
+
+
+## How to use
 **Download `install_script.sh`**
 
 **Give execute permission**
