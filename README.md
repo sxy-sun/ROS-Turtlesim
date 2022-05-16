@@ -14,22 +14,12 @@ $ ./install_script.sh
 Note: remember to source `.bashrc` under `/pet_ws` every time start a new terminal
 
 
-First terminal
+To launch the nodes:
 ```
-$ roscore
-```
-
-Second terminal
-```
-$ rosrun turtlesim turtlesim_node
+$ roslauch turtle_driver turtle_driver.launch
 ```
 
-Third terminal
-```
-$ rosrun turtle_driver turtle_driver_server.py
-```
-
-Fourth terminal
+To send request in the second terminal
 ```
 # to run in a circle with radius = 1
 $ rosservice call /turtle_drive "{task: circle, radius: 1}"
