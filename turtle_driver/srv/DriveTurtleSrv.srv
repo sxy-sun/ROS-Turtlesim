@@ -1,0 +1,6 @@
+string task
+float64 radius
+float64 length
+nav_msgs/Path waypoints
+---
+bool indicator

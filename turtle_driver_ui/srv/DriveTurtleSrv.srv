@@ -1,0 +1,6 @@
+string task
+float64 radius
+float64 length
+float64[] waypoints
+---
+bool indicator
