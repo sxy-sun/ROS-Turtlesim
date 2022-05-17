@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="turtlesim" type="turtlesim_node" name="turtlesim_node" />
+    <include file="$(find turtle_driver)/launch/turtle_driver.launch" />
+    <include file="$(find turtle_driver_ui)/launch/turtle_driver_ui.launch" />
+</launch>
