@@ -1,8 +1,8 @@
 # ROS-Turtlesim
-## Sample video
+## Demo
 
 
-https://user-images.githubusercontent.com/49962634/168674137-924506a0-6be0-4cff-b24d-e1160dcc3ae6.mov
+https://user-images.githubusercontent.com/49962634/169239956-c5468992-4c96-40de-a324-a200c509f112.mov
 
 
 ## Environment
@@ -26,15 +26,19 @@ source /opt/ros/noetic/setup.bash
 ```
 Source the pet_ws workspace
 ```
+cd pet_ws/
+```
+```
 . .bashrc
 ```
-Note: remember to source `.bashrc` under `/pet_ws` every time start a new terminal
-
+roslaunch
 ```
 roslaunch system_bringup system_bringup.launch
 ```
 
 **Use rosservice, in the second terminal**
+
+Note: remember to source `.bashrc` under `/pet_ws` every time start a new terminal
 
 To run in a circle with radius = 1
 ```
