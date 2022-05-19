@@ -5,27 +5,36 @@
 https://user-images.githubusercontent.com/49962634/168674137-924506a0-6be0-4cff-b24d-e1160dcc3ae6.mov
 
 
-
+## Environment
+ROS distro: noetic <br>
+ROS version: 1.15.14 <br>
+OS: Ubuntu 20.04.4 LTS x86_64
 ## How to use
-**Download `install_script.sh`**
+Download `install_script.sh`
 
-**Give execute permission**
+Give execute permission
 ```
 chmod +x install_script.sh
 ```
-
-**In the first terminal**
+Then
 ```
 ./install_script.sh
 ```
+Configure the ros environment
+```
+source /opt/ros/noetic/setup.bash
+```
+Source the pet_ws workspace
+```
+. .bashrc
+```
 Note: remember to source `.bashrc` under `/pet_ws` every time start a new terminal
 
-Launch the nodes:
 ```
-roslaunch turtle_driver turtle_driver.launch
+roslaunch system_bringup system_bringup.launch
 ```
 
-**In the Second terminal**
+**Use rosservice, in the second terminal**
 
 To run in a circle with radius = 1
 ```

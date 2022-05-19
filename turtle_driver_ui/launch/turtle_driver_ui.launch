@@ -1,3 +1,4 @@
 <launch>
-  <node pkg="turtle_driver_ui" type="turtle_driver_ui_client.py" name="turtle_driver_client" />
+  <node pkg="turtle_driver_ui" type="turtle_driver_ui_client.py" name="turtle_driver_client" output="screen" />
+  <rosparam file="$(find turtle_driver_ui)/config/params.yaml" />
 </launch>
