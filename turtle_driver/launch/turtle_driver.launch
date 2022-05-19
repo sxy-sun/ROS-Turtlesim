@@ -1,4 +1,3 @@
 <launch>
   <node pkg="turtle_driver" type="turtle_driver_server.py" name="turtle_driver_server" output="screen" />
-  <rosparam file="$(find turtle_driver)/config/params.yaml" />
 </launch>
