@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from cgitb import reset
 import turtle
 
 from yaml import YAMLError
@@ -11,6 +12,8 @@ from turtlesim.msg import Pose
 from nav_msgs.msg import Path
 import math
 from turtle_driver.srv import DriveTurtleSrv
+from std_srvs.srv import Empty
+from rosgraph_msgs.msg import Log
 
 class TurtleBot:
 
@@ -32,13 +35,19 @@ class TurtleBot:
                                                   Twist, queue_size=10)
         self.pose_subscriber = rospy.Subscriber(turtle_pose,
                                               Pose, self.update_pose)
-
+        self.rosout_subscriber = rospy.Subscriber('/rosout',
+                                              Log, self.need_reset)
         self.pose = Pose()
         self.rate = rospy.Rate(10)  # 10Hz
         self.radius = radius
         self.side_length = side_length
         self.waypoints = waypoints
         self.linear_PID = PID()
+        self.need_reset = False
+
+    def need_reset(self, data):
+        if data.msg[:2] == 'Oh':
+            self.need_reset = True
 
     def update_waypoints(self):
         """
@@ -88,6 +97,8 @@ class TurtleBot:
         vel_msg = Twist()
 
         while abs(clamp(self.steering_angle(goal_pose) - self.pose.theta)) >= 0.001:
+            if self.need_reset:
+                return False
             vel_msg.linear.x = 0
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
@@ -103,6 +114,8 @@ class TurtleBot:
         self.velocity_publisher.publish(vel_msg)
 
         while self.euclidean_distance(goal_pose) >= 0.01:
+            if self.need_reset:
+                return False
             vel_msg.linear.x = self.linear_vel(goal_pose)
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
@@ -111,13 +124,15 @@ class TurtleBot:
 
         vel_msg.linear.x = 0
         self.velocity_publisher.publish(vel_msg)
-        return
+        return True
 
     def drive_circle(self):
         """Moves the turtle in a circle with self.radius"""
         vel_msg = Twist()
         start = time.time()
         while time.time()-start <= 2.1*math.pi:
+            if self.need_reset:
+                return False
             vel_msg.linear.x = self.radius
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
@@ -132,28 +147,30 @@ class TurtleBot:
         vel_msg.angular.z = 0
         self.velocity_publisher.publish(vel_msg)
 
-        return 
+        return True
 
     def drive_square(self):
         """Moves the turtle in a square with self.side_length"""
-        goal = Pose()
+        goal= Pose()
+
+
         goal.x = self.pose.x + self.side_length
         goal.y = self.pose.y
-        self.move2goal(goal)
-
+        if not self.move2goal(goal): return False
+        
         goal.x = self.pose.x
         goal.y = self.pose.y + self.side_length
-        self.move2goal(goal)
+        if not self.move2goal(goal): return False
 
         goal.x = self.pose.x - self.side_length
         goal.y = self.pose.y
-        self.move2goal(goal)
+        if not self.move2goal(goal): return False
 
         goal.x = self.pose.x
         goal.y = self.pose.y - self.side_length
-        self.move2goal(goal)
+        if not self.move2goal(goal): return False
 
-        return
+        return True
 
     def drive_waypoints(self):
         """Moves the turtle follwing waypoints"""
@@ -162,8 +179,11 @@ class TurtleBot:
             goal = Pose()
             goal.x = waypoints_lst[i][0]
             goal.y = waypoints_lst[i][1]
-            self.move2goal(goal)
-        return
+            if self.move2goal(goal):
+                continue
+            else:
+                return False
+        return True
 
 
 def clamp(angle):
@@ -193,18 +213,34 @@ def drive_turtle_station(msg):
     time.sleep(1)
     if msg.task == 'circle':
         print("turtle running in circle")
-        turtle.drive_circle()
-        return True
+        if turtle.drive_circle():
+            return True
+        else:
+            reset_turtle()
+            return False
     elif msg.task == 'square':
         print("turtle running in square")
-        turtle.drive_square()
-        return True
+        if turtle.drive_square():
+            return True
+        else:
+            reset_turtle()
+            return False
     elif msg.task == 'custom':
         print("turtle following points")
-        turtle.drive_waypoints()
-        return True
+        if turtle.drive_waypoints():
+            return True
+        else:
+            reset_turtle()
+            return False
+    elif msg.task == 'reset':
+        print("Reseting...")
+        reset_turtle()
     return False
 
+
+def reset_turtle():
+    clear_bg = rospy.ServiceProxy('reset', Empty)
+    clear_bg()
 
 
 if __name__ == '__main__':

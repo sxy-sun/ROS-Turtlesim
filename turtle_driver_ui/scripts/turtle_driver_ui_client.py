@@ -8,6 +8,7 @@ from turtle_driver_ui.srv import DriveTurtleSrv
 from nav_msgs.msg import Path
 from std_msgs.msg import Empty
 from geometry_msgs.msg import PoseStamped 
+import re
 
 
 
@@ -51,11 +52,19 @@ if __name__ == "__main__":
                     #   float(x[0][3]) = 2.0
                     
                     waypoints_input = switcher[1:]  
+                    non_decimal = re.compile(r'[^\d,]+')
+                    
                     for i in range(len(waypoints_input)):
+                        waypoint_input = non_decimal.sub('', waypoints_input[i])
+                        waypoint_input_x = waypoint_input.split(',')[0]
+                        waypoint_input_y = waypoint_input.split(',')[1]
+
                         waypoint = PoseStamped()
-                        waypoint.pose.position.x = float(waypoints_input[i][1])
-                        waypoint.pose.position.y = float(waypoints_input[i][3])      
+                        waypoint.pose.position.x = float(waypoint_input_x)
+                        waypoint.pose.position.y = float(waypoint_input_y)      
                         waypoints.poses.append(waypoint)
+                elif switcher[0] == 'reset':
+                    pass        
                 else:
                     print("Missing Task Name")
                     break
