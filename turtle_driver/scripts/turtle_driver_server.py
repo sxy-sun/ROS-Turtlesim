@@ -7,7 +7,7 @@ from yaml import YAMLError
 import rospy
 import time
 from PID import PID
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, PoseStamped 
 from turtlesim.msg import Pose
 from nav_msgs.msg import Path
 import math
@@ -33,6 +33,8 @@ class TurtleBot:
 
         self.velocity_publisher = rospy.Publisher(turtle_cmd_vel,
                                                   Twist, queue_size=10)
+        self.pose_publisher = rospy.Publisher('turtle_current_pose', PoseStamped, queue_size=20)
+
         self.pose_subscriber = rospy.Subscriber(turtle_pose,
                                               Pose, self.update_pose)
         self.rosout_subscriber = rospy.Subscriber('/rosout',
@@ -67,6 +69,13 @@ class TurtleBot:
         self.pose = data
         self.pose.x = round(self.pose.x, 4)
         self.pose.y = round(self.pose.y, 4)
+        self.turtule_pose2PoseStamped()
+
+    def turtule_pose2PoseStamped(self):
+        PoseStamped_foo = PoseStamped()
+        PoseStamped_foo.pose.position.x = self.pose.x
+        PoseStamped_foo.pose.position.y = self.pose.y
+        self.pose_publisher.publish(PoseStamped_foo)
 
     def euclidean_distance(self, goal_pose):
         """Euclidean distance between current pose and the goal."""
@@ -245,7 +254,7 @@ def reset_turtle():
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('turtle_drive_server')
+        rospy.init_node('turtle_drive_node')
         s = rospy.Service('turtle_drive', DriveTurtleSrv, drive_turtle_station)
         rospy.spin()
     except rospy.ROSInterruptException:

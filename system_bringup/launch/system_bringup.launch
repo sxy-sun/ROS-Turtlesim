@@ -3,5 +3,7 @@
     <include file="$(find turtle_driver)/launch/turtle_driver.launch" />
     <include file="$(find turtle_driver_ui)/launch/turtle_driver_ui.launch" />
     
+    <node pkg="rviz" type="rviz" name="rviz" />
+
     <rosparam file="$(find system_bringup)/config/params.yaml" />
 </launch>

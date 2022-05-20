@@ -25,6 +25,9 @@ def drive(task, radius, side_length, waypoints):
 
 
 if __name__ == "__main__":
+    rospy.init_node('turtle_drive_ui_node')
+    custom_path_publisher = rospy.Publisher('custom_path', Path, queue_size=20)
+
     while True:
         switcher = input("Turtle command (h for help) > ")
         if switcher == 'h':
@@ -63,6 +66,7 @@ if __name__ == "__main__":
                         waypoint.pose.position.x = float(waypoint_input_x)
                         waypoint.pose.position.y = float(waypoint_input_y)      
                         waypoints.poses.append(waypoint)
+                        custom_path_publisher.publish(waypoints)
                 elif switcher[0] == 'reset':
                     pass        
                 else:
@@ -71,5 +75,6 @@ if __name__ == "__main__":
 
                 print("Requesting...")
                 drive(task, radius, length, waypoints)
-            except:
-                sys.exit("Bad Inputs")
+            except rospy.ServiceException as e:
+                print("Manuever has failed")
+                print(e)
