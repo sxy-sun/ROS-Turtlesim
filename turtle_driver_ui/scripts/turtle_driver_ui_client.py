@@ -69,12 +69,15 @@ if __name__ == "__main__":
                         custom_path_publisher.publish(waypoints)
                 elif switcher[0] == 'reset':
                     pass        
+                elif switcher[0] == 'quit':
+                    break
                 else:
                     print("Missing Task Name")
                     break
 
                 print("Requesting...")
                 drive(task, radius, length, waypoints)
+                rospy.sleep(3)
             except rospy.ServiceException as e:
                 print("Manuever has failed")
                 print(e)

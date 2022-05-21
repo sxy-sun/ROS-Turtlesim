@@ -140,7 +140,7 @@ class TurtleBot:
         """Moves the turtle in a circle with self.radius"""
         vel_msg = Twist()
         start = time.time()
-        while time.time()-start <= 2.1*math.pi:
+        while time.time()-start < 2.0001*math.pi:
             if self.need_reset:
                 return False
             vel_msg.linear.x = self.radius
