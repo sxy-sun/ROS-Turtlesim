@@ -73,6 +73,7 @@ class TurtleBot:
 
     def turtule_pose2PoseStamped(self):
         PoseStamped_foo = PoseStamped()
+        PoseStamped_foo.header.frame_id = "turtle_current_pose_frame"
         PoseStamped_foo.pose.position.x = self.pose.x
         PoseStamped_foo.pose.position.y = self.pose.y
         self.pose_publisher.publish(PoseStamped_foo)

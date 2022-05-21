@@ -28,13 +28,12 @@ if __name__ == "__main__":
     rospy.init_node('turtle_drive_ui_node')
     custom_path_publisher = rospy.Publisher('custom_path', Path, queue_size=20)
 
-    while True:
+    while not rospy.is_shutdown():
         switcher = input("Turtle command (h for help) > ")
         if switcher == 'h':
             print("circle <radius> => drive in a circle of specified radius")
             print("square <side_length> => drive in a square of specified side length")
             print("custom <(x1,y1)> <(x2,y2)> <(x3,y3)>... => follow these points sequentially")
-            continue
         else:
             try:
                 switcher = switcher.split()    # this will give a input list
@@ -55,7 +54,7 @@ if __name__ == "__main__":
                     #   float(x[0][3]) = 2.0
                     
                     waypoints_input = switcher[1:]  
-                    non_decimal = re.compile(r'[^\d,]+')
+                    non_decimal = re.compile(r'[^\d,.]+')
                     
                     for i in range(len(waypoints_input)):
                         waypoint_input = non_decimal.sub('', waypoints_input[i])
@@ -63,6 +62,7 @@ if __name__ == "__main__":
                         waypoint_input_y = waypoint_input.split(',')[1]
 
                         waypoint = PoseStamped()
+                        waypoint.header.frame_id = "turtle_waypoints_frame"
                         waypoint.pose.position.x = float(waypoint_input_x)
                         waypoint.pose.position.y = float(waypoint_input_y)      
                         waypoints.poses.append(waypoint)

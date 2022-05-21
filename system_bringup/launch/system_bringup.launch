@@ -4,6 +4,7 @@
     <include file="$(find turtle_driver_ui)/launch/turtle_driver_ui.launch" />
     
     <node pkg="rviz" type="rviz" name="rviz" />
+    <node pkg="tf" type="static_transform_publisher" name="rviz_broadcaster" args="4 4 0 0 0 0 1 turtle_current_pose_frame turtle_waypoints_frame 100" />
 
     <rosparam file="$(find system_bringup)/config/params.yaml" />
 </launch>
