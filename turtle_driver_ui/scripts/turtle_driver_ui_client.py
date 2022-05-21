@@ -62,9 +62,10 @@ if __name__ == "__main__":
                         waypoint_input_y = waypoint_input.split(',')[1]
 
                         waypoint = PoseStamped()
-                        waypoint.header.frame_id = "turtle_waypoints_frame"
+                        # waypoint.header.frame_id = "turtle_waypoints_frame"
                         waypoint.pose.position.x = float(waypoint_input_x)
-                        waypoint.pose.position.y = float(waypoint_input_y)      
+                        waypoint.pose.position.y = float(waypoint_input_y)     
+                        waypoints.header.frame_id = "turtle_waypoints_frame"
                         waypoints.poses.append(waypoint)
                         custom_path_publisher.publish(waypoints)
                 elif switcher[0] == 'reset':

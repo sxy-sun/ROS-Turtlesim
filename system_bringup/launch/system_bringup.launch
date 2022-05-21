@@ -4,8 +4,10 @@
     <include file="$(find turtle_driver)/launch/turtle_driver.launch" />
     
     <node pkg="rviz" type="rviz" name="rviz" />
-    <!-- <node pkg="tf" type="static_transform_publisher" name="rviz_broadcaster" args="-4 -4 0 0 0 0 turtle_current_pose_frame turtle_waypoints_frame 100" /> -->
-    <node pkg="tf" type="static_transform_publisher" name="rviz_broadcaster" args="-5.5444 -5.5444 0 0 0 0 map turtle_current_pose_frame 100" />
-
+    <node pkg="tf" type="static_transform_publisher" name="rviz_broadcaster_pose2map" args="-5.5444 -5.5444 0 0 0 0 map turtle_current_pose_frame 100" />
+    <node pkg="tf" type="static_transform_publisher" name="rviz_broadcaster_waypoints2pose" args="0 0 0 0 0 0 turtle_current_pose_frame turtle_waypoints_frame 100" />
+    
     <rosparam file="$(find system_bringup)/config/params.yaml" />
+    <param name="robot_description" value="$(find system_bringup)/launch/turtle_3d_geometry.urdf" />
+
 </launch>
