@@ -1,7 +1,0 @@
-  <link name="turtle_current_pose_frame">
-    <visual>
-      <geometry>
-        <mesh filename="system_bringup/launch/turtle_3d_geometry.urdf"/>
-      </geometry>
-    </visual>
-  </link>
