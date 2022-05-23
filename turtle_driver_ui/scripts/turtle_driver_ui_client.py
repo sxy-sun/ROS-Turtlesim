@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+from pickle import TRUE
 from secrets import choice
 import rospy
 import time
 import sys
+import signal
 from turtle_driver_ui.srv import DriveTurtleSrv
 from nav_msgs.msg import Path
 from std_msgs.msg import Empty
@@ -24,11 +26,20 @@ def drive(task, radius, side_length, waypoints):
         print(e)
 
 
+def signal_handler(sig, frame):
+    print('Shutting Down!')
+    sys.exit(0)
+
+
 if __name__ == "__main__":
     rospy.init_node('turtle_drive_ui_node')
     custom_path_publisher = rospy.Publisher('custom_path', Path, queue_size=20)
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    # signal.signal(signal.SIGKILL, signal_handler)
 
-    while not rospy.is_shutdown():
+    while True:
+    # while not rospy.is_shutdown():
         switcher = input("Turtle command (h for help) > ")
         if switcher == 'h':
             print("circle <radius> => drive in a circle of specified radius")
@@ -78,7 +89,6 @@ if __name__ == "__main__":
 
                 print("Requesting...")
                 drive(task, radius, length, waypoints)
-                rospy.sleep(3)
             except rospy.ServiceException as e:
                 print("Manuever has failed")
                 print(e)
