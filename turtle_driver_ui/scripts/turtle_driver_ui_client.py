@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+from pickle import TRUE
 from secrets import choice
 import rospy
 import time
 import sys
+import signal
 from turtle_driver_ui.srv import DriveTurtleSrv
 from nav_msgs.msg import Path
 from std_msgs.msg import Empty
@@ -24,17 +26,26 @@ def drive(task, radius, side_length, waypoints):
         print(e)
 
 
+def signal_handler(sig, frame):
+    """Source: https://docs.python.org/3/library/signal.html"""
+    print('Shutting Down!')
+    sys.exit(0)
+
+
 if __name__ == "__main__":
     rospy.init_node('turtle_drive_ui_node')
     custom_path_publisher = rospy.Publisher('custom_path', Path, queue_size=20)
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    # signal.signal(signal.SIGKILL, signal_handler)
 
     while True:
+    # while not rospy.is_shutdown():
         switcher = input("Turtle command (h for help) > ")
         if switcher == 'h':
             print("circle <radius> => drive in a circle of specified radius")
             print("square <side_length> => drive in a square of specified side length")
             print("custom <(x1,y1)> <(x2,y2)> <(x3,y3)>... => follow these points sequentially")
-            continue
         else:
             try:
                 switcher = switcher.split()    # this will give a input list
@@ -55,7 +66,7 @@ if __name__ == "__main__":
                     #   float(x[0][3]) = 2.0
                     
                     waypoints_input = switcher[1:]  
-                    non_decimal = re.compile(r'[^\d,]+')
+                    non_decimal = re.compile(r'[^\d,.]+')
                     
                     for i in range(len(waypoints_input)):
                         waypoint_input = non_decimal.sub('', waypoints_input[i])
@@ -63,12 +74,16 @@ if __name__ == "__main__":
                         waypoint_input_y = waypoint_input.split(',')[1]
 
                         waypoint = PoseStamped()
+                        # waypoint.header.frame_id = "turtle_waypoints_frame"
                         waypoint.pose.position.x = float(waypoint_input_x)
-                        waypoint.pose.position.y = float(waypoint_input_y)      
+                        waypoint.pose.position.y = float(waypoint_input_y)     
+                        waypoints.header.frame_id = "turtle_waypoints_frame"
                         waypoints.poses.append(waypoint)
                         custom_path_publisher.publish(waypoints)
                 elif switcher[0] == 'reset':
                     pass        
+                elif switcher[0] == 'quit':
+                    break
                 else:
                     print("Missing Task Name")
                     break

@@ -5,6 +5,7 @@ import turtle
 
 from yaml import YAMLError
 import rospy
+import roslib
 import time
 from PID import PID
 from geometry_msgs.msg import Twist, PoseStamped 
@@ -14,6 +15,7 @@ import math
 from turtle_driver.srv import DriveTurtleSrv
 from std_srvs.srv import Empty
 from rosgraph_msgs.msg import Log
+import tf
 
 class TurtleBot:
 
@@ -69,13 +71,36 @@ class TurtleBot:
         self.pose = data
         self.pose.x = round(self.pose.x, 4)
         self.pose.y = round(self.pose.y, 4)
-        self.turtule_pose2PoseStamped()
+        self.turtle_pose2PoseStamped()
+        self.handle_turtle_pose(data)
 
-    def turtule_pose2PoseStamped(self):
+    def turtle_pose2PoseStamped(self):
+        """Convert turtle pose in Pose() to PoseStamped() and publish"""
         PoseStamped_foo = PoseStamped()
+        roll = 0
+        pitch = 0
+        yaw = self.pose.theta
+        quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
+
+        PoseStamped_foo.header.frame_id = "turtle_current_pose_frame"
+
         PoseStamped_foo.pose.position.x = self.pose.x
         PoseStamped_foo.pose.position.y = self.pose.y
+
+        PoseStamped_foo.pose.orientation.x = quaternion[0]
+        PoseStamped_foo.pose.orientation.y = quaternion[1]
+        PoseStamped_foo.pose.orientation.z = quaternion[2]
+        PoseStamped_foo.pose.orientation.w = quaternion[3]
+
         self.pose_publisher.publish(PoseStamped_foo)
+
+    def handle_turtle_pose(self, msg):
+        br = tf.TransformBroadcaster()
+        br.sendTransform((msg.x, msg.y, 0),
+                        tf.transformations.quaternion_from_euler(0, 0, msg.theta),
+                        rospy.Time.now(),
+                        "turtle_body",
+                        "turtle_current_pose_frame")
 
     def euclidean_distance(self, goal_pose):
         """Euclidean distance between current pose and the goal."""
@@ -139,7 +164,7 @@ class TurtleBot:
         """Moves the turtle in a circle with self.radius"""
         vel_msg = Twist()
         start = time.time()
-        while time.time()-start <= 2.1*math.pi:
+        while time.time()-start < 2.0001*math.pi:
             if self.need_reset:
                 return False
             vel_msg.linear.x = self.radius
