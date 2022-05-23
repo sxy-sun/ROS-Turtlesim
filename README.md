@@ -1,9 +1,6 @@
 # ROS-Turtlesim
 ## Demo
-
-
-https://user-images.githubusercontent.com/49962634/169239956-c5468992-4c96-40de-a324-a200c509f112.mov
-
+https://user-images.githubusercontent.com/49962634/169905243-c13794ab-ec46-4e3a-afb9-45f8df491e14.mov
 
 ## Environment
 ROS distro: noetic <br>
