@@ -6,7 +6,7 @@
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(find system_bringup)/turtlesim.rviz"/>
     <node pkg="tf" type="static_transform_publisher" name="rviz_broadcaster_pose2map" args="-5.5444 -5.5444 0 0 0 0 map turtle_current_pose_frame 100" />
     <node pkg="tf" type="static_transform_publisher" name="rviz_broadcaster_waypoints2pose" args="-5.5444 -5.5444 0 0 0 0 map turtle_waypoints_frame 100" />
-    
+
     <rosparam file="$(find system_bringup)/config/params.yaml" />
     <param name="robot_description" textfile="$(find system_bringup)/turtle_3d_geometry.urdf" />
 

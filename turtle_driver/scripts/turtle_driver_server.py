@@ -5,6 +5,7 @@ import turtle
 
 from yaml import YAMLError
 import rospy
+import roslib
 import time
 from PID import PID
 from geometry_msgs.msg import Twist, PoseStamped 
@@ -71,6 +72,7 @@ class TurtleBot:
         self.pose.x = round(self.pose.x, 4)
         self.pose.y = round(self.pose.y, 4)
         self.turtle_pose2PoseStamped()
+        self.handle_turtle_pose(data)
 
     def turtle_pose2PoseStamped(self):
         """Convert turtle pose in Pose() to PoseStamped() and publish"""
@@ -91,6 +93,14 @@ class TurtleBot:
         PoseStamped_foo.pose.orientation.w = quaternion[3]
 
         self.pose_publisher.publish(PoseStamped_foo)
+
+    def handle_turtle_pose(self, msg):
+        br = tf.TransformBroadcaster()
+        br.sendTransform((msg.x, msg.y, 0),
+                        tf.transformations.quaternion_from_euler(0, 0, msg.theta),
+                        rospy.Time.now(),
+                        "turtle_body",
+                        "turtle_current_pose_frame")
 
     def euclidean_distance(self, goal_pose):
         """Euclidean distance between current pose and the goal."""

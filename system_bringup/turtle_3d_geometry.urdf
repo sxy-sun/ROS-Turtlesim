@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
-<robot name="turtle1">
-  <link name="turtle_current_pose_frame">
+<robot name="rviz_turtle1">
+  <link name="turtle_body">
     <visual>
       <geometry>
         <mesh filename="package://system_bringup/turtle_model.stl" scale="0.008 0.008 0.008"/>
       </geometry>
+      <origin xyz="0 0 0" rpy="0 0 2.49" />
     </visual>
   </link>
 </robot>

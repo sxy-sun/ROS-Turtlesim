@@ -27,6 +27,7 @@ def drive(task, radius, side_length, waypoints):
 
 
 def signal_handler(sig, frame):
+    """Source: https://docs.python.org/3/library/signal.html"""
     print('Shutting Down!')
     sys.exit(0)
 
